@@ -5,7 +5,7 @@ import {DEFAULT_PLACEHOLDER_IMAGE} from "../../utils/utils";
 
 const Movie: FC<MovieProps> = ({Poster, Title, Year}) => {
     const poster = Poster === 'N/A' ? DEFAULT_PLACEHOLDER_IMAGE : Poster;
-
+    console.log(poster);
     return (
         <div className={style.movie}>
             <h2>{Title}</h2>

@@ -1,26 +1,68 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useEffect, useState} from 'react';
 import './App.css';
+import {useQuery} from "@tanstack/react-query";
+import {MOVIE_API_URL} from "./utils/utils";
+import Header from "./components/Header/Header";
+import Search from "./components/Serach/Search";
+import axios from "axios";
+import Movie from "./components/Movie/Movie.";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+    const [isLoading, setIsLoading] = useState(true);
+    const [movies, setMovies] = useState<any>([]);
+    const [isError, setIsError] = useState(false);
+    // const {isLoading, data, isError} = useQuery(['movies'], fetchMovies, {staleTime: 60000});
+    // setMovies(data);
+    // if (isLoading) return <div>Loading...</div>
+    // const search = (searchValue: string) => {
+    //     const data: any = axios.get(`https://www.omdbapi.com/?s=${searchValue}&apikey=f4c69417`);
+    //     setMovies(data?.Search);
+    //
+    // }
+    useEffect(() => {
+        fetch(MOVIE_API_URL)
+            .then(response => response.json())
+            .then((jsonResponse: any) => {
+
+                setMovies([...movies, jsonResponse]);
+                setIsLoading(false);
+            });
+    }, []);
+
+    const search = (searchValue: any) => {
+        setIsLoading(true);
+        setIsError(false);
+        fetch(`https://www.omdbapi.com/?s=${searchValue}&apikey=f4c69417`)
+            .then(response => response.json())
+            .then(jsonResponse => {
+                if (jsonResponse.Response === "True") {
+                    setMovies(jsonResponse.Search);
+                    setIsLoading(false);
+                } else {
+                    setIsError(true);
+                    setIsLoading(false);
+                }
+            });
+    };
+    return (
+        <div className="App">
+            <Header text="HOOKED"/>
+            <Search search={search}/>
+            <p className="App-intro">Sharing a few of our favourite movies</p>
+            <div className="movies">
+                {isLoading ? (
+                    <span>loading...</span>
+                ) : isError ? (
+                    <div className="errorMessage">...Error!</div>
+                ) : (
+                    movies?.map((movie: any) => (
+                        <Movie Title={movie?.Title} Poster={movie.Poster} Year={movie.Year}/>
+                    ))
+                )}
+            </div>
+        </div>
+    );
 }
 
 export default App;
