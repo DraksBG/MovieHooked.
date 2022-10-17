@@ -26,7 +26,7 @@ function App() {
                 setMovies([...movies, jsonResponse]);
                 setIsLoading(false);
             });
-    }, []);
+    }, [movies]);
 
     const search = (searchValue: any) => {
         setIsLoading(true);
