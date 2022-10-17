@@ -1,10 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
-import {useQuery} from "@tanstack/react-query";
 import {MOVIE_API_URL} from "./utils/utils";
 import Header from "./components/Header/Header";
 import Search from "./components/Serach/Search";
-import axios from "axios";
 import Movie from "./components/Movie/Movie.";
 
 function App() {
