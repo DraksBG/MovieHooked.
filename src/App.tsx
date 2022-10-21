@@ -1,62 +1,51 @@
-import React, {useEffect, useState} from 'react';
-import './App.css';
-import {MOVIE_API_URL} from "./utils/utils";
+import React, {useState} from 'react';
+import {fetchMovie} from "./utils/utils";
 import Header from "./components/Header/Header";
-import Search from "./components/Serach/Search";
 import Movie from "./components/Movie/Movie.";
+import Search from "./components/Serach/Search";
+import {useQuery} from "@tanstack/react-query";
+
 
 function App() {
+    // const [movies, setMovies] = useState<MovieProps[]>([]);
+    const [searchValue, setSearchValue] = useState<string>('');
 
-    const [isLoading, setIsLoading] = useState(true);
-    const [movies, setMovies] = useState<any>([]);
-    const [isError, setIsError] = useState(false);
-    // const {isLoading, data, isError} = useQuery(['movies'], fetchMovies, {staleTime: 60000});
-    // setMovies(data);
-    // if (isLoading) return <div>Loading...</div>
-    // const search = (searchValue: string) => {
-    //     const data: any = axios.get(`https://www.omdbapi.com/?s=${searchValue}&apikey=f4c69417`);
-    //     setMovies(data?.Search);
-    //
-    // }
-    useEffect(() => {
-        fetch(MOVIE_API_URL)
-            .then(response => response.json())
-            .then((jsonResponse: any) => {
 
-                setMovies([...movies, jsonResponse]);
-                setIsLoading(false);
-            });
-    }, [movies]);
+    const {data, status} = useQuery(['movies', searchValue], () => fetchMovie(searchValue));
+
+    // useEffect(() => {
+    //     if (data) setMovies((prevState: any) => [...prevState, data]);
+    //     console.log('DATA ', data);
+    // }, [data]);
+
 
     const search = (searchValue: any) => {
-        setIsLoading(true);
-        setIsError(false);
-        fetch(`https://www.omdbapi.com/?s=${searchValue}&apikey=f4c69417`)
-            .then(response => response.json())
-            .then(jsonResponse => {
-                if (jsonResponse.Response === "True") {
-                    setMovies(jsonResponse.Search);
-                    setIsLoading(false);
-                } else {
-                    setIsError(true);
-                    setIsLoading(false);
-                }
-            });
+        setSearchValue(searchValue);
     };
     return (
-        <div className="App">
+        <div className="text-center">
             <Header text="HOOKED"/>
             <Search search={search}/>
             <p className="App-intro">Sharing a few of our favourite movies</p>
-            <div className="movies">
-                {isLoading ? (
+            <div className="bg-amber-50 flex items-center justify-center flex-rol flex-wrap">
+                {status === 'loading' ? (
                     <span>loading...</span>
-                ) : isError ? (
+                ) : status === 'error' ? (
                     <div className="errorMessage">...Error!</div>
                 ) : (
-                    movies?.map((movie: any) => (
-                        <Movie Title={movie?.Title} Poster={movie.Poster} Year={movie.Year}/>
-                    ))
+                    data.length ?
+                        data?.map((movie: any, index: number) => {
+                            const uniqueKey = `${index}_${movie.Title}`;
+                            return (
+                                <div key={uniqueKey}>
+                                    <Movie Title={movie?.Title} Poster={movie.Poster} Year={movie.Year}
+                                           Plot={movie.Plot}
+                                           Runtime={movie.Runtime} id={uniqueKey} Genre={movie.Genre}/>
+                                </div>
+                            )
+                        }) : <Movie Poster={data.Poster} Title={data.Title} Year={data.Year}
+                                    id={`${data.Title}_${data.Year}`} Runtime={data.Runtime} Genre={data.Genre}
+                                    Plot={data.Plot}/>
                 )}
             </div>
         </div>
