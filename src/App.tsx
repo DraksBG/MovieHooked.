@@ -7,21 +7,13 @@ import {useQuery} from "@tanstack/react-query";
 
 
 function App() {
-    // const [movies, setMovies] = useState<MovieProps[]>([]);
     const [searchValue, setSearchValue] = useState<string>('');
-
-
     const {data, status} = useQuery(['movies', searchValue], () => fetchMovie(searchValue));
-
-    // useEffect(() => {
-    //     if (data) setMovies((prevState: any) => [...prevState, data]);
-    //     console.log('DATA ', data);
-    // }, [data]);
-
 
     const search = (searchValue: any) => {
         setSearchValue(searchValue);
     };
+
     return (
         <div className="text-center">
             <Header text="HOOKED"/>
